@@ -21,6 +21,7 @@ pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
 set(RELEASE_SOURCE_FILES
 	${SOURCE_DIR}/main.c
 	${SOURCE_DIR}/stone_logic.c
+	${SOURCE_DIR}/groups.c
 )
 
 add_executable(${NAME} ${RELEASE_SOURCE_FILES})

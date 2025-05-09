@@ -8,9 +8,11 @@
 #include <gtk/gtk.h>
 #include <consts.h>
 
-typedef enum StoneType StoneType;
-
-//static int get_liberties(int* board_array, unsigned int x_index, unsigned int y_index);
+typedef enum StoneType {
+    EMPTY = 0,
+    BLACK_STONE = 1,
+    WHITE_STONE = 2,
+} StoneType;
 
 extern bool check_valid_play();
 extern bool check_liberties(int* board_array, unsigned int x_index, unsigned int y_index);
