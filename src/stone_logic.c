@@ -129,9 +129,6 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
 
     int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
 
-    //g_print("x=%f, y=%f, n_press=%d\n", x, y, n_press);
-    //g_print("Board index: %d\nBoard value:%d\n", board_array_index, ((int*)board_array)[board_array_index]);
-
     if (((int*)board_array)[board_array_index] == EMPTY) {
         GtkWidget *placing_stone;
         ((int*)board_array)[board_array_index] = current_color;
@@ -150,17 +147,29 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
         }
 
         gtk_image_set_pixel_size(GTK_IMAGE(placing_stone), STONE_SIZE);
-
         gtk_grid_attach(GTK_GRID(board_grid), placing_stone, x_index, y_index, 1, 1);
-
-
-        //g_print("%d\n", get_liberties(board_array, x_index, y_index););
 
         Group group;
         init_group(&group, 5);
         get_stone_group(&group, board_array, x_index, y_index);
-        g_print("Number of stones in group: %lo\n", group.amount);
-        g_print("Number of liberties in group: %d\n", get_group_liberties(&group, board_array));
+        // g_print("Number of stones in group: %lo\n", group.amount);
+        // g_print("Number of liberties in group: %d\n", get_group_liberties(&group, board_array));
+        if (get_group_liberties(&group, board_array) == 0) {
+            g_print("You can't play there!\n");
+            ((int*)board_array)[board_array_index] = EMPTY;
+            image = gtk_grid_get_child_at(GTK_GRID(board_grid), x_index, y_index);
+            gtk_grid_remove(GTK_GRID(board_grid), image);
+            GtkWidget *empty = gtk_image_new_from_file(EMPTY_PATH);
+
+            gtk_image_set_pixel_size(GTK_IMAGE(empty), STONE_SIZE);
+            gtk_grid_attach(GTK_GRID(board_grid), empty, x_index, y_index, 1, 1);
+
+            if (current_color == BLACK_STONE) {
+                current_color = WHITE_STONE;
+            } else if (current_color == WHITE_STONE) {
+                current_color = BLACK_STONE;
+            }
+        }
 
         free_group(&group);
     }
