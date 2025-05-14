@@ -47,7 +47,7 @@ static void get_stone_group(Group* group, const int* board_array, int x_index, i
     if (board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == placed_stone_color && !bottom_edge_stone) {
         bool already_in_group = false;
         for (int i = 0; i < group->amount; i++) {
-            if (group->group[i]->x_index == x_index + (int) sqrt(BOARD_SIZE) && group->group[i]->y_index == y_index + 1) {
+            if (group->group[i]->x_index == x_index && group->group[i]->y_index == y_index + 1) {
                 already_in_group = true;
                 break;
             }
@@ -70,61 +70,43 @@ static void get_stone_group(Group* group, const int* board_array, int x_index, i
     }
 }
 
-// static int get_liberties(const int* board_array, int x_index, int y_index) {
-//     int liberties = 4;
-//     int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
-//     // bools as ints
-//     bool right_edge_stone = x_index % ((int) sqrt(BOARD_SIZE) - 1) == 0;
-//     bool left_edge_stone = x_index % (int) sqrt(BOARD_SIZE) == 0;
-//     bool bottom_edge_stone = y_index % ((int) sqrt(BOARD_SIZE) - 1) == 0;
-//     bool top_edge_stone = y_index % (int) sqrt(BOARD_SIZE) == 0;
-//     StoneType placed_stone_color = board_array[x_index + y_index * (int) sqrt(BOARD_SIZE)];
-//     StoneType enemy_stone_color;
-//
-//     if (placed_stone_color == BLACK_STONE) {
-//         enemy_stone_color = WHITE_STONE;
-//     } else {
-//         enemy_stone_color = BLACK_STONE;
-//     }
-//
-//     if (right_edge_stone ||
-//         left_edge_stone ||
-//         bottom_edge_stone ||
-//         top_edge_stone) {
-//         liberties--;
-//     }
-//
-//     if (!right_edge_stone) {
-//         if (board_array[board_array_index + 1] == enemy_stone_color) {
-//             liberties--;
-//         } else if (board_array[board_array_index + 1] == placed_stone_color) {
-//             liberties += get_liberties(board_array, x_index + 1, y_index);
-//         }
-//     }
-//     if (!left_edge_stone) {
-//         if (board_array[board_array_index - 1] == enemy_stone_color) {
-//             liberties--;
-//         } else if (board_array[board_array_index - 1] == placed_stone_color){
-//             liberties += get_liberties(board_array, x_index - 1, y_index);
-//         }
-//     }
-//     if (!bottom_edge_stone) {
-//         if (board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == enemy_stone_color) {
-//             liberties--;
-//         } else if (board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == placed_stone_color) {
-//             liberties += get_liberties(board_array, x_index, y_index + 1);
-//         }
-//     }
-//     if (!top_edge_stone) {
-//         if (board_array[board_array_index - (int) sqrt(BOARD_SIZE)] == enemy_stone_color) {
-//             liberties--;
-//         } else if (board_array[board_array_index - (int) sqrt(BOARD_SIZE)] == placed_stone_color) {
-//             liberties += get_liberties(board_array, x_index, y_index - 1);
-//         }
-//     }
-//
-//     return liberties;
-// }
+static int get_group_liberties(Group* group, const int* board_array) {
+    int liberties = 0;
+    for (size_t i = 0; i < group->amount; i++) {
+        int x_index = group->group[i]->x_index;
+        int y_index = group->group[i]->y_index;
+
+        // checking if a stone is on the edge of the board
+        bool right_edge_stone = x_index % ((int) sqrt(BOARD_SIZE) - 1) == 0;
+        bool left_edge_stone = x_index % (int) sqrt(BOARD_SIZE) == 0;
+        bool bottom_edge_stone = y_index % ((int) sqrt(BOARD_SIZE) - 1) == 0;
+        bool top_edge_stone = y_index % (int) sqrt(BOARD_SIZE) == 0;
+
+        int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
+
+        // if (right_edge_stone ||
+        // left_edge_stone ||
+        // bottom_edge_stone ||
+        // top_edge_stone) {
+        //     liberties--;
+        // }
+
+        if (!right_edge_stone && board_array[board_array_index + 1] == EMPTY) {
+            liberties++;
+        }
+        if (!left_edge_stone && board_array[board_array_index - 1] == EMPTY) {
+            liberties++;
+        }
+        if (!bottom_edge_stone && board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == EMPTY) {
+            liberties++;
+        }
+        if (!top_edge_stone && board_array[board_array_index - (int) sqrt(BOARD_SIZE)] == EMPTY) {
+            liberties++;
+        }
+    }
+
+    return liberties;
+}
 
 void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer board_array) {
     GtkWidget *board_grid = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
@@ -178,6 +160,7 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
         init_group(&group, 5);
         get_stone_group(&group, board_array, x_index, y_index);
         g_print("Number of stones in group: %lo\n", group.amount);
+        g_print("Number of liberties in group: %d\n", get_group_liberties(&group, board_array));
 
         free_group(&group);
     }

@@ -29,7 +29,8 @@ void insert_group(Group* group, BoardCoord* element) {
             return;
         }
     }
-    group->group[group->amount++] = element;
+    group->group[group->amount] = element;
+    group->amount++;
 }
 
 void free_group(Group* group) {
