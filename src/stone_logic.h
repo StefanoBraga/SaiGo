@@ -14,9 +14,9 @@ typedef enum StoneType {
     WHITE_STONE = 2,
 } StoneType;
 
-extern bool check_valid_play();
-extern bool check_liberties(unsigned int x_index, unsigned int y_index);
-extern void place_stone(unsigned int x_index, unsigned int y_index, StoneType stone_type);
+extern bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type);
+extern bool check_liberties(u_char x_index, u_char y_index, StoneType stone_type);
+extern void place_stone(u_char x_index, u_char y_index, StoneType stone_type);
 extern void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer user_data);
 
 
