@@ -56,6 +56,6 @@ void free_group(Group* group) {
         free(group->group[i]);
     }
     free(group->group);
-    group->group = nullptr;
+    group->group = NULL;
     group->amount = group->size = 0;
 }

@@ -5,7 +5,7 @@
 #ifndef GROUPS_H
 #define GROUPS_H
 
-#include "types.h"
+#include "board_coord.h"
 
 struct Group {
     BoardCoord** group;

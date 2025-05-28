@@ -10,6 +10,22 @@ extern u_char board_array[];
 int captured_black = 0;
 int captured_white = 0;
 
+static bool at_right_edge(u_char x_index) {
+    return x_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && x_index != 0;
+}
+
+static bool at_left_edge(u_char x_index) {
+    return x_index % (u_char) sqrt(BOARD_SIZE) == 0;
+}
+
+static bool at_top_edge(u_char y_index) {
+    return y_index % (u_char) sqrt(BOARD_SIZE) == 0;
+}
+
+static bool at_bottom_edge(u_char y_index) {
+    return y_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && y_index != 0;
+}
+
 static StoneType invert_stone_type(StoneType stone_type) {
     if (stone_type == EMPTY) {
         return EMPTY;
@@ -45,12 +61,6 @@ static void get_board_indices_from_grid(GtkWidget* board_grid, gdouble x, gdoubl
 static void get_stone_group(Group* group, u_char x_index, u_char y_index) {
     int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
 
-    /* Checking if a stone is on the edge of the board */
-    bool right_edge_stone = x_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && x_index != 0;
-    bool left_edge_stone = x_index % (u_char) sqrt(BOARD_SIZE) == 0;
-    bool bottom_edge_stone = y_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && y_index != 0;
-    bool top_edge_stone = y_index % (u_char) sqrt(BOARD_SIZE) == 0;
-
     StoneType placed_stone_color = board_array[x_index + y_index * (int) sqrt(BOARD_SIZE)];
 
     if (placed_stone_color == EMPTY) {
@@ -61,22 +71,23 @@ static void get_stone_group(Group* group, u_char x_index, u_char y_index) {
     insert_group(group, board_coord);
 
     /* TODO: rewrite, duplicate code */
-    if (board_array[board_array_index + 1] == placed_stone_color && !right_edge_stone) {
+    /* Checking if a stone is on the edge of the board */
+    if (board_array[board_array_index + 1] == placed_stone_color && !at_right_edge(x_index)) {
         if (!group_contains_indices(group, x_index + 1, y_index)) {
             get_stone_group(group, x_index + 1, y_index);
         }
     }
-    if (board_array[board_array_index - 1] == placed_stone_color && !left_edge_stone) {
+    if (board_array[board_array_index - 1] == placed_stone_color && !at_left_edge(x_index)) {
         if (!group_contains_indices(group, x_index - 1, y_index)) {
             get_stone_group(group, x_index - 1, y_index);
         }
     }
-    if (board_array[board_array_index + (u_char) sqrt(BOARD_SIZE)] == placed_stone_color && !bottom_edge_stone) {
+    if (board_array[board_array_index + (u_char) sqrt(BOARD_SIZE)] == placed_stone_color && !at_bottom_edge(y_index)) {
         if (!group_contains_indices(group, x_index, y_index + 1)) {
             get_stone_group(group, x_index, y_index + 1);
         }
     }
-    if (board_array[board_array_index - (u_char) sqrt(BOARD_SIZE)] == placed_stone_color && !top_edge_stone) {
+    if (board_array[board_array_index - (u_char) sqrt(BOARD_SIZE)] == placed_stone_color && !at_top_edge(y_index)) {
         if (!group_contains_indices(group, x_index, y_index - 1)) {
             get_stone_group(group, x_index, y_index - 1);
         }
@@ -95,7 +106,7 @@ static u_short get_group_liberties(const Group* group) {
 
         /* Checking if a stone is on the edge of the board and the adjacent intersections are empty */
         /* right edge stone */
-        if ((x_index % ((u_char) sqrt(BOARD_SIZE) - 1) != 0 || x_index == 0) && board_array[board_array_index + 1] == EMPTY) {
+        if (!at_right_edge(x_index) && board_array[board_array_index + 1] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index + 1, y_index)) {
                 BoardCoord* board_coord = create_board_coord(x_index + 1, y_index);
                 insert_group(&counted_liberties, board_coord);
@@ -103,7 +114,7 @@ static u_short get_group_liberties(const Group* group) {
             }
         }
         /* left edge stone */
-        if (x_index % (u_char) sqrt(BOARD_SIZE) != 0 && board_array[board_array_index - 1] == EMPTY) {
+        if (!at_left_edge(x_index) && board_array[board_array_index - 1] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index - 1, y_index)) {
                 BoardCoord* board_coord = create_board_coord(x_index - 1, y_index);
                 insert_group(&counted_liberties, board_coord);
@@ -111,7 +122,7 @@ static u_short get_group_liberties(const Group* group) {
             }
         }
         /* bottom edge stone */
-        if ((y_index % ((u_char) sqrt(BOARD_SIZE) - 1) != 0 || y_index == 0) && board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == EMPTY) {
+        if (!at_bottom_edge(y_index) && board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index, y_index + 1)) {
                 BoardCoord* board_coord = create_board_coord(x_index, y_index + 1);
                 insert_group(&counted_liberties, board_coord);
@@ -119,7 +130,7 @@ static u_short get_group_liberties(const Group* group) {
             }
         }
         /* top edge stone */
-        if (y_index % (u_char) sqrt(BOARD_SIZE) != 0 && board_array[board_array_index - (u_char) sqrt(BOARD_SIZE)] == EMPTY) {
+        if (!at_top_edge(y_index) && board_array[board_array_index - (u_char) sqrt(BOARD_SIZE)] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index, y_index - 1)) {
                 BoardCoord* board_coord = create_board_coord(x_index, y_index - 1);
                 insert_group(&counted_liberties, board_coord);
@@ -213,48 +224,6 @@ static void get_captured_groups(Group *groups[], u_char x_index, u_char y_index,
             free(opponent_group);
         }
     }
-
-    /* TODO: needs a rewrite, duplicate code */
-    // if (((u_char*)board_array)[board_array_index + 1] == stone_type) {
-    //     Group *opponent_group = malloc(sizeof(Group));
-    //     init_group(opponent_group, AVERAGE_GROUP_SIZE);
-    //     get_stone_group(opponent_group, x_index + 1, y_index);
-    //     if (get_group_liberties(opponent_group) == 0) {
-    //         groups[1] = opponent_group;
-    //     } else {
-    //         groups[1] = NULL;
-    //     }
-    // }
-    // if (((u_char*)board_array)[board_array_index - 1] == stone_type) {
-    //     Group opponent_group;
-    //     init_group(&opponent_group, AVERAGE_GROUP_SIZE);
-    //     get_stone_group(&opponent_group, x_index - 1, y_index);
-    //     if (get_group_liberties(&opponent_group) == 0) {
-    //         groups[3] = &opponent_group;
-    //     } else {
-    //         groups[3] = NULL;
-    //     }
-    // }
-    // if (((u_char*)board_array)[board_array_index + (u_char) sqrt(BOARD_SIZE)] == stone_type) {
-    //     Group opponent_group;
-    //     init_group(&opponent_group, AVERAGE_GROUP_SIZE);
-    //     get_stone_group(&opponent_group, x_index, y_index + 1);
-    //     if (get_group_liberties(&opponent_group) == 0) {
-    //         groups[2] = &opponent_group;
-    //     } else {
-    //         groups[2] = NULL;
-    //     }
-    // }
-    // if (((u_char*)board_array)[board_array_index - (u_char) sqrt(BOARD_SIZE)] == stone_type) {
-    //     Group opponent_group;
-    //     init_group(&opponent_group, AVERAGE_GROUP_SIZE);
-    //     get_stone_group(&opponent_group, x_index, y_index - 1);
-    //     if (get_group_liberties(&opponent_group) == 0) {
-    //         groups[0] = &opponent_group;
-    //     } else {
-    //         groups[0] = NULL;
-    //     }
-    // }
 }
 
 bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
@@ -268,8 +237,17 @@ bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
 
     get_stone_group(&group, x_index, y_index);
 
-    g_print("%d\n", get_group_liberties(&group));
-    if (get_group_liberties(&group) == 0) {
+    Group *captured_groups[4];
+    get_captured_groups(captured_groups, x_index, y_index, invert_stone_type(stone_type));
+
+    bool capturable = false;
+    for (u_char i = 0; i < 4; i++) {
+        if (captured_groups[i] != NULL) {
+            capturable = true;
+        }
+    }
+
+    if (get_group_liberties(&group) == 0 && !capturable) {
         free_group(&group);
         board_array[board_array_index] = current_stone;
         return false;
@@ -314,20 +292,19 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
         gtk_image_set_pixel_size(GTK_IMAGE(placing_stone), STONE_SIZE);
         gtk_grid_attach(GTK_GRID(board_grid), placing_stone, x_index, y_index, 1, 1);
 
-
         /* Capture groups that don't have any liberties left.
          * Here, current_color is already updated, so this refers to the opponent color.
          */
-        Group *groups[4];
-        get_captured_groups(groups, x_index, y_index, current_color);
+        Group *captured_groups[4];
+        get_captured_groups(captured_groups, x_index, y_index, current_color);
         for (u_char i = 0; i < 4; i++) {
-            if (groups[i] == NULL) continue;
-            capture_group(board_grid, groups[i], current_color);
+            if (captured_groups[i] == NULL) continue;
+            capture_group(board_grid, captured_groups[i], current_color);
             /* First free the 'vector' that contains the BoardCoords,
              * then free the actual group.
              */
-            free_group(groups[i]);
-            free(groups[i]);
+            free_group(captured_groups[i]);
+            free(captured_groups[i]);
         }
     }
 }
