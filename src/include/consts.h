@@ -2,7 +2,11 @@
 #define CONSTS_H
 
 // GUI CONSTS
+
+/* MAX BOARD SIZE = 255x255 */
+/* NO SUPPORT FOR NON-SQUARE BOARDS */
 #define BOARD_SIZE 19 * 19
+#define AVERAGE_GROUP_SIZE 5
 
 // IMAGE PATHS
 #define WOOD_PATH "../images/wood_1024.jpg"

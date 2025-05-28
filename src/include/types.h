@@ -6,8 +6,8 @@
 #define TYPES_H
 
 typedef struct BoardCoord {
-    int x_index;
-    int y_index;
+    u_char x_index;
+    u_char y_index;
 } BoardCoord;
 
 #endif //TYPES_H

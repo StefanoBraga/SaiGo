@@ -5,7 +5,7 @@
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
 
-int8_t board_array[BOARD_SIZE];
+u_char board_array[BOARD_SIZE] = {0};
 
 static void activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *window;
@@ -41,6 +41,7 @@ static void activate(GtkApplication *app, gpointer user_data) {
     gtk_grid_set_row_spacing(GTK_GRID(board_grid), STONE_SPACING);
 
     GtkGesture *click_gesture = gtk_gesture_click_new();
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_gesture), 0);
 
     for (int i = 0; i < BOARD_SIZE; i++) {
         GtkWidget *empty =
@@ -84,7 +85,6 @@ static void activate(GtkApplication *app, gpointer user_data) {
 int main(int argc, char **argv) {
     GtkApplication *app;
     int status;
-    memset(board_array, 0, BOARD_SIZE * sizeof(board_array[0]));
 
     app = gtk_application_new("com.github.StefanoBraga.SaiGo",
                               G_APPLICATION_DEFAULT_FLAGS);

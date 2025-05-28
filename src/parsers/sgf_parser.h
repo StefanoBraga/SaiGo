@@ -1,12 +1,10 @@
 #ifndef SGF_PARSER_H
 #define SGF_PARSER_H
 
-typedef struct Node_ Node;
-
-struct Node_ {
+typedef struct Node {
 	Node* prev;
 	Node* next;
-};
+} Node;
 
 
 
