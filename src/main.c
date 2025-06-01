@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <consts.h>
 #include "stone_logic.h"
+#include "interface.h"
 #include <dbg.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
@@ -8,12 +9,7 @@
 u_char board_array[BOARD_SIZE] = {0};
 
 static void activate(GtkApplication *app, gpointer user_data) {
-    GtkWidget *window;
-
-    window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), "SaiGo");
-    gtk_window_set_default_size(GTK_WINDOW(window), 750, 750);
-    gtk_window_set_resizable(GTK_WINDOW(window), false);
+    GtkWidget *window = init_window(app);
 
     GFile *black_stone_file = g_file_new_for_path(BLACK_STONE_PATH);
     GFile *empty_file = g_file_new_for_path(EMPTY_PATH);
@@ -72,7 +68,11 @@ static void activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_add_controller(board_grid, GTK_EVENT_CONTROLLER(click_gesture));
     g_signal_connect(click_gesture, "pressed", G_CALLBACK(play_stone), board_array);
 
+    GtkWidget *pass_button = gtk_button_new_with_label("Pass");
+    g_signal_connect(pass_button, "clicked", G_CALLBACK(pass), app);
+
     gtk_grid_attach(GTK_GRID(main_grid), overlay, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(main_grid), pass_button, 0, 1, 1, 1);
 
     gtk_window_present(GTK_WINDOW(window));
 

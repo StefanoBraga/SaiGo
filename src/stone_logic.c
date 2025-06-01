@@ -5,10 +5,15 @@
 #include <dbg.h>
 #include "stone_logic.h"
 #include "groups.h"
+#include "consts.h"
+#include "interface.h"
 
 extern u_char board_array[];
 int captured_black = 0;
 int captured_white = 0;
+
+int current_color = BLACK_STONE;
+u_char n_passes = 0;
 
 static bool at_right_edge(u_char x_index) {
     return x_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && x_index != 0;
@@ -226,6 +231,17 @@ static void get_captured_groups(Group *groups[], u_char x_index, u_char y_index,
     }
 }
 
+// static bool check_ko(u_char x_index, u_char y_index, const BoardCoord* last_captured_stone, u_char last_x_index, u_char last_y_index) {
+//     if (last_captured_stone == NULL) {
+//         return true;
+//     }
+//     if (last_captured_stone->x_index == x_index && last_captured_stone->y_index == y_index) {
+//         return false;
+//     }
+//
+//     return true;
+// }
+
 bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
     Group group;
     init_group(&group, AVERAGE_GROUP_SIZE);
@@ -259,8 +275,10 @@ bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
 }
 
 void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer board_array) {
+    // static u_char last_x_index = 0;
+    // static u_char last_y_index = 0;
+    // static BoardCoord* last_captured_stone = NULL;
     GtkWidget *board_grid = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
-    static int current_color = BLACK_STONE;
     u_char x_index;
     u_char y_index;
 
@@ -273,24 +291,14 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
     int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
 
     /* Check if the point is empty and play the stone */
-    if (((u_char*)board_array)[board_array_index] == EMPTY && check_valid_play(x_index, y_index, current_color)) {
-        GtkWidget *placing_stone;
+    if (((u_char*)board_array)[board_array_index] == EMPTY &&
+        check_valid_play(x_index, y_index, current_color)) {
+        // last_x_index = x_index;
+        // last_y_index = y_index;
         ((u_char*)board_array)[board_array_index] = current_color;
 
-        GtkWidget *image = gtk_grid_get_child_at(GTK_GRID(board_grid), x_index, y_index);
-        gtk_grid_remove(GTK_GRID(board_grid), image);
-        if (current_color == BLACK_STONE) {
-            placing_stone = gtk_image_new_from_file(BLACK_STONE_PATH);
-        } else if (current_color == WHITE_STONE) {
-            placing_stone = gtk_image_new_from_file(WHITE_STONE_PATH);
-        } else {
-            // sentinel("Incorrect stone placement")
-            return;
-        }
+        add_stone_to_board(board_grid, x_index, y_index, current_color);
         current_color = invert_stone_type(current_color);
-
-        gtk_image_set_pixel_size(GTK_IMAGE(placing_stone), STONE_SIZE);
-        gtk_grid_attach(GTK_GRID(board_grid), placing_stone, x_index, y_index, 1, 1);
 
         /* Capture groups that don't have any liberties left.
          * Here, current_color is already updated, so this refers to the opponent color.
@@ -299,6 +307,7 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
         get_captured_groups(captured_groups, x_index, y_index, current_color);
         for (u_char i = 0; i < 4; i++) {
             if (captured_groups[i] == NULL) continue;
+            // if (captured_groups[i]->amount == 1) last_captured_stone = captured_groups[i]->group[0];
             capture_group(board_grid, captured_groups[i], current_color);
             /* First free the 'vector' that contains the BoardCoords,
              * then free the actual group.
@@ -306,5 +315,13 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
             free_group(captured_groups[i]);
             free(captured_groups[i]);
         }
+    }
+}
+
+void pass(GtkButton* button, gpointer user_data) {
+    current_color = invert_stone_type(current_color);
+    n_passes++;
+    if (n_passes == 2) {
+        g_application_quit(G_APPLICATION(user_data));
     }
 }

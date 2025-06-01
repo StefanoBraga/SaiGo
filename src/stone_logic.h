@@ -6,7 +6,7 @@
 #define STONE_LOGIC_H
 
 #include <gtk/gtk.h>
-#include <consts.h>
+#include "board_coord.h"
 
 typedef enum StoneType {
     EMPTY = 0,
@@ -18,6 +18,7 @@ extern bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_typ
 extern bool check_liberties(u_char x_index, u_char y_index, StoneType stone_type);
 extern void place_stone(u_char x_index, u_char y_index, StoneType stone_type);
 extern void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer user_data);
+extern void pass(GtkButton* button, gpointer user_data);
 
 
 #endif //STONE_LOGIC_H

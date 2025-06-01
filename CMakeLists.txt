@@ -40,8 +40,9 @@ set(RELEASE_SOURCE_FILES
 		${SOURCE_DIR}/stone_logic.c
 		${SOURCE_DIR}/groups.c
 		${SOURCE_DIR}/board_coord.c
+		${SOURCE_DIR}/interface.c
 )
 
 add_executable(${NAME} ${RELEASE_SOURCE_FILES})
-target_compile_options(${NAME} PRIVATE -Wall -Werror)
+target_compile_options(${NAME} PRIVATE -Wall -Werror -g)
 target_link_libraries(${NAME} PRIVATE PkgConfig::GTK4)
