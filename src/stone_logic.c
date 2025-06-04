@@ -2,11 +2,11 @@
 // Created by stefan on 8/05/25.
 //
 
-#include <dbg.h>
-#include "stone_logic.h"
-#include "groups.h"
 #include "consts.h"
+#include "dbg.h"
+#include "groups.h"
 #include "interface.h"
+#include "stone_logic.h"
 
 extern u_char board_array[];
 int captured_black = 0;
@@ -15,23 +15,33 @@ int captured_white = 0;
 int current_color = BLACK_STONE;
 u_char n_passes = 0;
 
-static bool at_right_edge(u_char x_index) {
+static bool
+at_right_edge(u_char x_index)
+{
     return x_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && x_index != 0;
 }
 
-static bool at_left_edge(u_char x_index) {
+static bool
+at_left_edge(u_char x_index)
+{
     return x_index % (u_char) sqrt(BOARD_SIZE) == 0;
 }
 
-static bool at_top_edge(u_char y_index) {
+static bool
+at_top_edge(u_char y_index)
+{
     return y_index % (u_char) sqrt(BOARD_SIZE) == 0;
 }
 
-static bool at_bottom_edge(u_char y_index) {
+static bool
+at_bottom_edge(u_char y_index)
+{
     return y_index % ((u_char) sqrt(BOARD_SIZE) - 1) == 0 && y_index != 0;
 }
 
-static StoneType invert_stone_type(StoneType stone_type) {
+static StoneType
+invert_stone_type(StoneType stone_type)
+{
     if (stone_type == EMPTY) {
         return EMPTY;
     }
@@ -45,7 +55,9 @@ static StoneType invert_stone_type(StoneType stone_type) {
     return EMPTY;
 }
 
-static void get_board_indices_from_grid(GtkWidget* board_grid, gdouble x, gdouble y, u_char *x_index, u_char *y_index) {
+static void
+get_board_indices_from_grid(GtkWidget* board_grid, gdouble x, gdouble y, u_char *x_index, u_char *y_index)
+{
     /* Get the x index of the played move on the board */
     for (int i = 0; i < gtk_widget_get_width(board_grid); i++) {
         if (i * STONE_SIZE + (i - 1) * STONE_SPACING > x) {
@@ -63,7 +75,9 @@ static void get_board_indices_from_grid(GtkWidget* board_grid, gdouble x, gdoubl
     }
 }
 
-static void get_stone_group(Group* group, u_char x_index, u_char y_index) {
+static void
+get_stone_group(Group* group, u_char x_index, u_char y_index)
+{
     int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
 
     StoneType placed_stone_color = board_array[x_index + y_index * (int) sqrt(BOARD_SIZE)];
@@ -99,7 +113,9 @@ static void get_stone_group(Group* group, u_char x_index, u_char y_index) {
     }
 }
 
-static u_short get_group_liberties(const Group* group) {
+static u_short
+get_group_liberties(const Group* group)
+{
     u_short liberties = 0;
     Group counted_liberties;
     init_group(&counted_liberties, AVERAGE_GROUP_SIZE);
@@ -153,7 +169,9 @@ static u_short get_group_liberties(const Group* group) {
  * @param group         pointer to the group to be captured
  * @param stone_type    the StoneType of the group of stones
  */
-static void capture_group(GtkWidget *board_grid, const Group* group, StoneType stone_type) {
+static void
+capture_group(GtkWidget *board_grid, const Group* group, StoneType stone_type)
+{
     if (stone_type == EMPTY) {
         log_err("stone_color is EMPTY_STONE. Can't capture empty group.");
         return;
@@ -184,11 +202,14 @@ static void capture_group(GtkWidget *board_grid, const Group* group, StoneType s
  * @param y_index       the y index of the played stone
  * @param stone_type    the StoneType of the group of stones
  */
-static void get_captured_groups(Group *groups[], u_char x_index, u_char y_index, StoneType stone_type) {
+static void
+get_captured_groups(Group *groups[], u_char x_index, u_char y_index, StoneType stone_type)
+{
     int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
 
     for (u_char i = 0; i < 4; i++) {
         Group *opponent_group = malloc(sizeof(Group));
+
         init_group(opponent_group, AVERAGE_GROUP_SIZE);
         bool group_found = false;
 
@@ -231,23 +252,19 @@ static void get_captured_groups(Group *groups[], u_char x_index, u_char y_index,
     }
 }
 
-// static bool check_ko(u_char x_index, u_char y_index, const BoardCoord* last_captured_stone, u_char last_x_index, u_char last_y_index) {
-//     if (last_captured_stone == NULL) {
-//         return true;
-//     }
-//     if (last_captured_stone->x_index == x_index && last_captured_stone->y_index == y_index) {
-//         return false;
-//     }
-//
-//     return true;
-// }
-
-bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
+bool
+check_valid_play(
+    u_char x_index, u_char y_index, u_char x_index_that_captured, u_char y_index_that_captured, StoneType stone_type)
+{
     Group group;
+    int board_array_index;
+    bool capturable, ko;
+
+
     init_group(&group, AVERAGE_GROUP_SIZE);
 
     /* 'Image' a stone being on the x and y location and add it to the group */
-    int board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
+    board_array_index = x_index + y_index * (int) sqrt(BOARD_SIZE);
     StoneType current_stone = board_array[board_array_index];
     board_array[board_array_index] = stone_type;
 
@@ -256,14 +273,24 @@ bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
     Group *captured_groups[4];
     get_captured_groups(captured_groups, x_index, y_index, invert_stone_type(stone_type));
 
-    bool capturable = false;
+    capturable = ko = false;
     for (u_char i = 0; i < 4; i++) {
-        if (captured_groups[i] != NULL) {
-            capturable = true;
+        const Group *gp = captured_groups[i];
+        if (gp == NULL) {
+            continue;
         }
+        const BoardCoord * bcp = gp->group[0];
+
+        if (gp->amount == 1 && bcp->x_index == x_index_that_captured && bcp->y_index == y_index_that_captured) {
+            ko = true;
+        }
+
+        capturable = true;
+        free_group(captured_groups[i]);
+        free(captured_groups[i]);
     }
 
-    if (get_group_liberties(&group) == 0 && !capturable) {
+    if ((get_group_liberties(&group) == 0 && !capturable) || ko) {
         free_group(&group);
         board_array[board_array_index] = current_stone;
         return false;
@@ -274,15 +301,18 @@ bool check_valid_play(u_char x_index, u_char y_index, StoneType stone_type) {
     return true;
 }
 
-void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer board_array) {
-    // static u_char last_x_index = 0;
-    // static u_char last_y_index = 0;
-    // static BoardCoord* last_captured_stone = NULL;
+void
+play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer board_array)
+{
+    static u_char x_index_that_captured = 255;
+    static u_char y_index_that_captured = 255;
+    n_passes = 0;
+
     GtkWidget *board_grid = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
     u_char x_index;
     u_char y_index;
 
-    // Use gtk_gesture_single_get_current_button() to detect right clicks
+    /* Use gtk_gesture_single_get_current_button() to detect right clicks */
     // g_print("Button number: %d\n", gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(gesture)));
 
     /* Get x and y index on the board */
@@ -292,24 +322,30 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
 
     /* Check if the point is empty and play the stone */
     if (((u_char*)board_array)[board_array_index] == EMPTY &&
-        check_valid_play(x_index, y_index, current_color)) {
-        // last_x_index = x_index;
-        // last_y_index = y_index;
+        check_valid_play(x_index, y_index, x_index_that_captured, y_index_that_captured, current_color)) {
         ((u_char*)board_array)[board_array_index] = current_color;
+
+        x_index_that_captured = 255;
+        y_index_that_captured = 255;
 
         add_stone_to_board(board_grid, x_index, y_index, current_color);
         current_color = invert_stone_type(current_color);
 
-        /* Capture groups that don't have any liberties left.
+        /*
+         * Capture groups that don't have any liberties left.
          * Here, current_color is already updated, so this refers to the opponent color.
          */
         Group *captured_groups[4];
         get_captured_groups(captured_groups, x_index, y_index, current_color);
         for (u_char i = 0; i < 4; i++) {
             if (captured_groups[i] == NULL) continue;
-            // if (captured_groups[i]->amount == 1) last_captured_stone = captured_groups[i]->group[0];
+            if (captured_groups[i]->amount == 1) {
+                x_index_that_captured = x_index;
+                y_index_that_captured = y_index;
+            }
             capture_group(board_grid, captured_groups[i], current_color);
-            /* First free the 'vector' that contains the BoardCoords,
+            /*
+             * First free the 'vector' that contains the BoardCoords,
              * then free the actual group.
              */
             free_group(captured_groups[i]);
@@ -318,7 +354,9 @@ void play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gp
     }
 }
 
-void pass(GtkButton* button, gpointer user_data) {
+void
+pass(GtkButton* button, gpointer user_data)
+{
     current_color = invert_stone_type(current_color);
     n_passes++;
     if (n_passes == 2) {

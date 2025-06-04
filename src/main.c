@@ -1,14 +1,17 @@
 #include <stdlib.h>
-#include <consts.h>
-#include "stone_logic.h"
-#include "interface.h"
-#include <dbg.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
 
+#include "consts.h"
+#include "dbg.h"
+#include "interface.h"
+#include "stone_logic.h"
+
 u_char board_array[BOARD_SIZE] = {0};
 
-static void activate(GtkApplication *app, gpointer user_data) {
+static void
+activate(GtkApplication *app, gpointer user_data)
+{
     GtkWidget *window = init_window(app);
 
     GFile *black_stone_file = g_file_new_for_path(BLACK_STONE_PATH);
@@ -82,7 +85,9 @@ static void activate(GtkApplication *app, gpointer user_data) {
     g_object_unref(empty_texture);
 }
 
-int main(int argc, char **argv) {
+int
+main(int argc, char **argv)
+{
     GtkApplication *app;
     int status;
 

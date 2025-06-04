@@ -3,11 +3,13 @@
 //
 
 #include <stdlib.h>
-#include <stddef.h>
-#include <dbg.h>
+
+#include "dbg.h"
 #include "groups.h"
 
-void init_group(Group* group, size_t initial_size) {
+void
+init_group(Group* group, size_t initial_size)
+{
     group->group = malloc(initial_size * sizeof(size_t));
     if (group->group == NULL) {
         log_err("Failed to allocate for Group");
@@ -17,7 +19,9 @@ void init_group(Group* group, size_t initial_size) {
     group->size = initial_size;
 }
 
-void insert_group(Group* group, BoardCoord* element) {
+void
+insert_group(Group* group, BoardCoord* element)
+{
     if (group->amount == group->size) {
         group->size *= 2;
         BoardCoord** group_ptr = group->group;
@@ -33,7 +37,9 @@ void insert_group(Group* group, BoardCoord* element) {
     group->amount++;
 }
 
-bool group_contains_board_coord(const Group* group, const BoardCoord* board_coord) {
+bool
+group_contains_board_coord(const Group* group, const BoardCoord* board_coord)
+{
     for (size_t i = 0; i < group->amount; i++) {
         if (group->group[i]->x_index == board_coord->x_index && group->group[i]->y_index == board_coord->y_index) {
             return true;
@@ -42,7 +48,9 @@ bool group_contains_board_coord(const Group* group, const BoardCoord* board_coor
     return false;
 }
 
-bool group_contains_indices(const Group* group, u_char x_index, u_char y_index) {
+bool
+group_contains_indices(const Group* group, u_char x_index, u_char y_index)
+{
     for (size_t i = 0; i < group->amount; i++) {
         if (group->group[i]->x_index == x_index && group->group[i]->y_index == y_index) {
             return true;
@@ -51,7 +59,9 @@ bool group_contains_indices(const Group* group, u_char x_index, u_char y_index) 
     return false;
 }
 
-void free_group(Group* group) {
+void
+free_group(Group* group)
+{
     for (int i = 0; i < group->amount; i++) {
         free(group->group[i]);
     }
