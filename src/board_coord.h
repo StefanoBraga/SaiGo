@@ -7,11 +7,11 @@
 
 #include <sys/types.h>
 
-typedef struct BoardCoord {
+struct BoardCoord {
     u_char x_index;
     u_char y_index;
-} BoardCoord;
+};
 
-BoardCoord *create_board_coord(u_char x_index, u_char y_index);
+struct BoardCoord *create_board_coord(u_char x_index, u_char y_index);
 
 #endif //BOARD_COORD_H

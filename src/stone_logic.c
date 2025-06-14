@@ -86,7 +86,7 @@ get_stone_group(Group* group, u_char x_index, u_char y_index)
         return;
     }
 
-    BoardCoord *board_coord = create_board_coord(x_index, y_index);
+    struct BoardCoord *board_coord = create_board_coord(x_index, y_index);
     insert_group(group, board_coord);
 
     /* TODO: rewrite, duplicate code */
@@ -129,7 +129,7 @@ get_group_liberties(const Group* group)
         /* right edge stone */
         if (!at_right_edge(x_index) && board_array[board_array_index + 1] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index + 1, y_index)) {
-                BoardCoord* board_coord = create_board_coord(x_index + 1, y_index);
+                struct BoardCoord* board_coord = create_board_coord(x_index + 1, y_index);
                 insert_group(&counted_liberties, board_coord);
                 liberties++;
             }
@@ -137,7 +137,7 @@ get_group_liberties(const Group* group)
         /* left edge stone */
         if (!at_left_edge(x_index) && board_array[board_array_index - 1] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index - 1, y_index)) {
-                BoardCoord* board_coord = create_board_coord(x_index - 1, y_index);
+                struct BoardCoord* board_coord = create_board_coord(x_index - 1, y_index);
                 insert_group(&counted_liberties, board_coord);
                 liberties++;
             }
@@ -145,7 +145,7 @@ get_group_liberties(const Group* group)
         /* bottom edge stone */
         if (!at_bottom_edge(y_index) && board_array[board_array_index + (int) sqrt(BOARD_SIZE)] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index, y_index + 1)) {
-                BoardCoord* board_coord = create_board_coord(x_index, y_index + 1);
+                struct BoardCoord* board_coord = create_board_coord(x_index, y_index + 1);
                 insert_group(&counted_liberties, board_coord);
                 liberties++;
             }
@@ -153,7 +153,7 @@ get_group_liberties(const Group* group)
         /* top edge stone */
         if (!at_top_edge(y_index) && board_array[board_array_index - (u_char) sqrt(BOARD_SIZE)] == EMPTY) {
             if (!group_contains_indices(&counted_liberties, x_index, y_index - 1)) {
-                BoardCoord* board_coord = create_board_coord(x_index, y_index - 1);
+                struct BoardCoord* board_coord = create_board_coord(x_index, y_index - 1);
                 insert_group(&counted_liberties, board_coord);
                 liberties++;
             }
@@ -177,7 +177,7 @@ capture_group(GtkWidget *board_grid, const Group* group, StoneType stone_type)
         return;
     }
     for (size_t i = 0; i < group->amount; i++) {
-        BoardCoord* board_coord = group->group[i];
+        struct BoardCoord* board_coord = group->group[i];
         ((u_char*)board_array)[board_coord->x_index + board_coord->y_index * (int) sqrt(BOARD_SIZE)] = EMPTY;
         GtkWidget *image = gtk_grid_get_child_at(GTK_GRID(board_grid), board_coord->x_index, board_coord->y_index);
         gtk_grid_remove(GTK_GRID(board_grid), image);
@@ -279,7 +279,7 @@ check_valid_play(
         if (gp == NULL) {
             continue;
         }
-        const BoardCoord * bcp = gp->group[0];
+        const struct BoardCoord * bcp = gp->group[0];
 
         if (gp->amount == 1 && bcp->x_index == x_index_that_captured && bcp->y_index == y_index_that_captured) {
             ko = true;
@@ -302,7 +302,7 @@ check_valid_play(
 }
 
 void
-play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer board_array)
+play_stone(GtkGestureClick *gesture, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
     static u_char x_index_that_captured = 255;
     static u_char y_index_that_captured = 255;
@@ -360,6 +360,6 @@ pass(GtkButton* button, gpointer user_data)
     current_color = invert_stone_type(current_color);
     n_passes++;
     if (n_passes == 2) {
-        g_application_quit(G_APPLICATION(user_data));
+        gtk_window_close(GTK_WINDOW(user_data));
     }
 }

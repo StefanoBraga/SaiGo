@@ -1,19 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  	<object id="window" class="GtkWindow">
-    		<property name="title">SaiGo</property>
-    		<property name="default-height">750</property>
-    		<property name="default-width">750</property>
-    		<-- <child>
-    			<object class="GtkImage" id="wood_image">
-    				<property name="file">images/seamless-wood-background-1-900x900.png</property>
-	    			<child>
-	    				<object class="GtkOverlay" id="overlay">
-	    					<property name="halign">GTK_ALIGN_FILL</property>
-	    					<property name="valign">GTK_ALIGN_FILL</property>
-	    				</object>
-	    			</child>
-    			<object>
-    		</child> --!>
+  	<object class="GtkWindow" id="window">
+		<property name="title">SaiGo</property>
+		<property name="default-height">750</property>
+		<property name="default-width">750</property>
+		<property name="resizable">FALSE</property>;
+		<child>
+			<object class="GtkGrid" id="main_grid">
+				<child>
+					<object class="GtkOverlay" id="overlay">
+						<property name="valign">GTK_ALIGN_FILL</property>
+						<property name="halign">GTK_ALIGN_FILL</property>
+						<layout>
+							<property name="column">0</property>
+							<property name="row">0</property>
+						</layout>
+						<child>
+							<object class="GtkImage" id="wood_image">
+								<property name="file">../images/wood_1024.jpg</property>
+								<property name="pixel-size">750</property>
+							</object>
+						</child>
+						<child type="overlay">
+							<object class="GtkImage" id="board_image">
+								<property name="file">../images/board.png</property>
+								<property name="pixel-size">750</property>
+							</object>
+						</child>
+						<child type="overlay">
+							<object class="GtkGrid" id="board_grid">
+								<property name="column-spacing">2</property>
+								<property name="row-spacing">2</property>
+								<property name="margin-start">24</property>
+								<property name="margin-top">24</property>
+								<property name="margin-bottom">24</property>
+								<property name="margin-end">24</property>
+							</object>
+						</child>
+					</object>
+				</child>
+				<child>
+					<object class="GtkBox" id="button_box">
+						<property name="halign">GTK_ALIGN_CENTER</property>
+						<layout>
+							<property name="column">0</property>
+							<property name="row">1</property>
+						</layout>
+						<child>
+							<object class="GtkButton" id="pass_button">
+								<property name="label">Pass</property>
+							</object>
+						</child>
+						<child>
+							<object class="GtkDropDown" id="scoring_dropdown">
+								<property name="model">
+									<object class="GtkStringList">
+										<items>
+											<item translatable="yes">Japanese</item>
+											<item translatable="yes">Chinese</item>
+										</items>
+									</object>
+								</property>
+							</object>
+						</child>
+					</object>
+				</child>
+			</object>
+		</child>
   	</object>
 </interface>

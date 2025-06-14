@@ -12,36 +12,29 @@ u_char board_array[BOARD_SIZE] = {0};
 static void
 activate(GtkApplication *app, gpointer user_data)
 {
-    GtkWidget *window = init_window(app);
-
-    GFile *black_stone_file = g_file_new_for_path(BLACK_STONE_PATH);
+    GObject *window, *board_grid, *pass_button;
     GFile *empty_file = g_file_new_for_path(EMPTY_PATH);
-
-    GdkTexture *black_stone_texture =
-            gdk_texture_new_from_file(black_stone_file, NULL);
-    GdkTexture *empty_texture = gdk_texture_new_from_file(empty_file, NULL);
-
-    if (black_stone_texture == NULL) {
-        g_print("Error loading black stone texture\n");
-    }
-    if (empty_texture == NULL) {
-        g_print("Error loading empty texture\n");
-    }
-
-    GtkWidget *wood_image = gtk_image_new_from_file(WOOD_PATH);
-    gtk_image_set_pixel_size(GTK_IMAGE(wood_image), 750);
-    GtkWidget *board_image = gtk_image_new_from_file(BOARD_LINES_PATH);
-    gtk_image_set_pixel_size(GTK_IMAGE(board_image), 750);
-
-    GtkWidget *main_grid = gtk_grid_new();
-    GtkWidget *board_grid = gtk_grid_new();
-
-    gtk_grid_set_column_spacing(GTK_GRID(board_grid), STONE_SPACING);
-    gtk_grid_set_row_spacing(GTK_GRID(board_grid), STONE_SPACING);
+    GdkTexture *empty_texture;
+    GtkBuilder *builder = gtk_builder_new();
 
     GtkGesture *click_gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_gesture), 0);
 
+    /* Load our UI description */
+    gtk_builder_add_from_file(builder, "../src/builder.ui", NULL);
+
+    window = gtk_builder_get_object(builder, "window");
+    board_grid = gtk_builder_get_object(builder, "board_grid");
+    pass_button = gtk_builder_get_object(builder, "pass_button");
+
+    empty_texture = gdk_texture_new_from_file(empty_file, NULL);
+    if (empty_texture == NULL) {
+        g_print("Error loading empty texture\n");
+    }
+
+    gtk_window_set_application(GTK_WINDOW(window), app);
+
+    /* Set up the board. */
     for (int i = 0; i < BOARD_SIZE; i++) {
         GtkWidget *empty =
                 gtk_image_new_from_paintable(GDK_PAINTABLE(empty_texture));
@@ -53,36 +46,16 @@ activate(GtkApplication *app, gpointer user_data)
                         i / (int) sqrt(BOARD_SIZE), 1, 1);
     }
 
-    GtkWidget *overlay = gtk_overlay_new();
-    gtk_widget_set_halign(overlay, GTK_ALIGN_FILL);
-    gtk_widget_set_valign(overlay, GTK_ALIGN_FILL);
+    /* Connecting the signals */
+    gtk_widget_add_controller(GTK_WIDGET(board_grid), GTK_EVENT_CONTROLLER(click_gesture));
+    g_signal_connect(click_gesture, "pressed", G_CALLBACK(play_stone), NULL);
+    g_signal_connect(pass_button, "clicked", G_CALLBACK(pass), window);
 
-    gtk_window_set_child(GTK_WINDOW(window), main_grid);
+    gtk_widget_set_visible(GTK_WIDGET(window), TRUE);
 
-    gtk_overlay_set_child(GTK_OVERLAY(overlay), wood_image);
-    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), board_image);
-    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), board_grid);
-
-    gtk_widget_set_margin_start(board_grid, BOARD_GRID_MARGIN);
-    gtk_widget_set_margin_top(board_grid, BOARD_GRID_MARGIN);
-    gtk_widget_set_margin_bottom(board_grid, BOARD_GRID_MARGIN);
-    gtk_widget_set_margin_end(board_grid, BOARD_GRID_MARGIN);
-
-    gtk_widget_add_controller(board_grid, GTK_EVENT_CONTROLLER(click_gesture));
-    g_signal_connect(click_gesture, "pressed", G_CALLBACK(play_stone), board_array);
-
-    GtkWidget *pass_button = gtk_button_new_with_label("Pass");
-    g_signal_connect(pass_button, "clicked", G_CALLBACK(pass), app);
-
-    gtk_grid_attach(GTK_GRID(main_grid), overlay, 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(main_grid), pass_button, 0, 1, 1, 1);
-
-    gtk_window_present(GTK_WINDOW(window));
-
-    g_object_unref(black_stone_file);
     g_object_unref(empty_file);
-    g_object_unref(black_stone_texture);
     g_object_unref(empty_texture);
+    g_object_unref(builder);
 }
 
 int

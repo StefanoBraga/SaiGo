@@ -20,11 +20,11 @@ init_group(Group* group, size_t initial_size)
 }
 
 void
-insert_group(Group* group, BoardCoord* element)
+insert_group(Group* group, struct BoardCoord* element)
 {
     if (group->amount == group->size) {
         group->size *= 2;
-        BoardCoord** group_ptr = group->group;
+        struct BoardCoord** group_ptr = group->group;
         group->group = realloc(group->group, group->size * sizeof(size_t));
         if (group->group == NULL) {
             log_err("Failed to reallocate for Group");
@@ -38,7 +38,7 @@ insert_group(Group* group, BoardCoord* element)
 }
 
 bool
-group_contains_board_coord(const Group* group, const BoardCoord* board_coord)
+group_contains_board_coord(const Group* group, const struct BoardCoord* board_coord)
 {
     for (size_t i = 0; i < group->amount; i++) {
         if (group->group[i]->x_index == board_coord->x_index && group->group[i]->y_index == board_coord->y_index) {
