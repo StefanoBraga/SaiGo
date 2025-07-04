@@ -12,7 +12,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-include_directories(./src/include)
+include_directories(./include)
 
 # check if Doxygen is installed
 find_package(Doxygen)
@@ -41,8 +41,10 @@ set(RELEASE_SOURCE_FILES
 		${SOURCE_DIR}/groups.c
 		${SOURCE_DIR}/board_coord.c
 		${SOURCE_DIR}/interface.c
+		${SOURCE_DIR}/game_logic.c
+		${SOURCE_DIR}/
 )
 
 add_executable(${NAME} ${RELEASE_SOURCE_FILES})
-target_compile_options(${NAME} PRIVATE -Wall -Werror -g)
+target_compile_options(${NAME} PRIVATE -Wall -Wextra -g)
 target_link_libraries(${NAME} PRIVATE PkgConfig::GTK4)

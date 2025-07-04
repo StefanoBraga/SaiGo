@@ -1,9 +1,7 @@
-//
-// Created by stefan on 9/05/25.
-//
-
 #include <stdlib.h>
 
+#include "types.h"       /* Needed by board_coord.h. */
+#include "board_coord.h" /* Needed by groups.h. */
 #include "dbg.h"
 #include "groups.h"
 
@@ -62,7 +60,7 @@ group_contains_indices(const Group* group, u_char x_index, u_char y_index)
 void
 free_group(Group* group)
 {
-    for (int i = 0; i < group->amount; i++) {
+    for (size_t i = 0; i < group->amount; i++) {
         free(group->group[i]);
     }
     free(group->group);

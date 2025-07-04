@@ -1,8 +1,6 @@
-//
-// Created by stefanv on 5/28/25.
-//
-
 #include <stdlib.h>
+
+#include "types.h"
 #include "board_coord.h"
 
 struct BoardCoord

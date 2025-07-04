@@ -17,13 +17,13 @@
 						</layout>
 						<child>
 							<object class="GtkImage" id="wood_image">
-								<property name="file">../images/wood_1024.jpg</property>
+								<property name="file">images/wood_1024.jpg</property>
 								<property name="pixel-size">750</property>
 							</object>
 						</child>
 						<child type="overlay">
 							<object class="GtkImage" id="board_image">
-								<property name="file">../images/board.png</property>
+								<property name="file">images/board.png</property>
 								<property name="pixel-size">750</property>
 							</object>
 						</child>
@@ -51,21 +51,100 @@
 								<property name="label">Pass</property>
 							</object>
 						</child>
-						<child>
-							<object class="GtkDropDown" id="scoring_dropdown">
-								<property name="model">
-									<object class="GtkStringList">
-										<items>
-											<item translatable="yes">Japanese</item>
-											<item translatable="yes">Chinese</item>
-										</items>
-									</object>
-								</property>
-							</object>
-						</child>
 					</object>
 				</child>
 			</object>
 		</child>
   	</object>
+	<object class="GtkWindow" id="settings_window">
+		<property name="title">Game Settings</property>
+		<property name="default-height">500</property>
+		<property name="default-width">500</property>
+		<property name="resizable">FALSE</property>
+		<child>
+			<object class="GtkBox">
+				<property name="halign">GTK_ALIGN_CENTER</property>
+				<property name="valign">GTK_ALIGN_CENTER</property>
+				<property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+				<property name="spacing">5</property>
+				<child>
+					<object class="GtkPaned">
+						<property name="valign">GTK_ALIGN_CENTER</property>
+						<property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+						<property name="wide-handle">TRUE</property>
+						<property name="start-child">
+							<object class="GtkFrame">
+								<child>
+									<object class="GtkBox">
+										<property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+										<property name="spacing">3</property>
+										<child>
+											<object class="GtkLabel">
+												<property name="label">Black</property>
+												<attributes>
+													<attribute name="weight" value="PANGO_WEIGHT_BOLD"/>
+													<attribute name="underline" value="PANGO_UNDERLINE_SINGLE"/>
+												</attributes>
+											</object>
+										</child>
+										<child>
+											<object class="GtkEntry" id="black_name_entry">
+												<property name="placeholder-text">Name</property>
+											</object>
+										</child>
+									</object>
+								</child>
+							</object>
+						</property>
+						<property name="end-child">
+							<object class="GtkFrame">
+								<child>
+									<object class="GtkBox">
+										<property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+										<property name="spacing">3</property>
+										<child>
+											<object class="GtkLabel">
+												<property name="label">White</property>
+												<attributes>
+													<attribute name="weight" value="PANGO_WEIGHT_BOLD"/>
+													<attribute name="underline" value="PANGO_UNDERLINE_SINGLE"/>
+												</attributes>
+											</object>
+										</child>
+										<child>
+											<object class="GtkEntry" id="white_name_entry">
+												<property name="placeholder-text">Name</property>
+											</object>
+										</child>
+									</object>
+								</child>
+							</object>
+						</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkDropDown" id="scoring_dropdown">
+						<property name="model">
+							<object class="GtkStringList">
+								<items>
+									<item translatable="yes">Japanese</item>
+									<item translatable="yes">Chinese</item>
+								</items>
+							</object>
+						</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkEntry" id="komi_entry">
+						<property name="placeholder-text">Komi</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkButton" id="accept_button">
+						<property name="label">Accept</property>
+					</object>
+				</child>
+			</object>
+		</child>
+	</object>
 </interface>
